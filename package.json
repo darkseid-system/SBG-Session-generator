@@ -1,0 +1,19 @@
+{
+  "name": "sbg-md-real-session",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SBG-MD web UI with a real WhatsApp pairing-code backend.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "latest",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "pino": "^9.9.0"
+  }
+}
