@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SBG-MD | Real WhatsApp Session</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:#050607;color:#eaffea;font-family:Arial,sans-serif;display:grid;place-items:center;padding:20px}
+    .card{width:min(520px,100%);background:#0b0f0c;border:1px solid #1eff4d55;border-radius:22px;padding:26px;box-shadow:0 0 40px #00ff3c18}
+    h1{margin:0 0 8px;color:#54ff7a;font-size:28px}.muted{color:#9eafa1;font-size:14px;line-height:1.5}
+    label{display:block;margin:22px 0 8px;font-weight:700}.row{display:flex;gap:10px}
+    input{width:100%;background:#050806;color:#fff;border:1px solid #2cff5d55;border-radius:12px;padding:14px;font-size:16px;outline:none}
+    button{border:0;border-radius:12px;padding:14px 16px;background:#31ff63;color:#031006;font-weight:800;cursor:pointer}
+    button:disabled{opacity:.5;cursor:not-allowed}.code{margin-top:20px;padding:20px;border-radius:16px;background:#020403;border:1px dashed #31ff63;text-align:center;font:800 28px/1.2 monospace;letter-spacing:2px;display:none}
+    .msg{margin-top:14px;min-height:20px;color:#b9c9bc}.back{display:inline-block;margin-top:20px;color:#54ff7a;text-decoration:none}
+    .small{font-size:12px;color:#819084;margin-top:12px}
+  </style>
+</head>
+<body>
+<main class="card">
+  <h1>SBG-MD — REAL SESSION</h1>
+  <div class="muted">Connect your own WhatsApp account to SBG-MD using WhatsApp's pairing-code flow.</div>
+
+  <label for="phone">WhatsApp number</label>
+  <div class="row">
+    <input id="phone" inputmode="numeric" autocomplete="tel" placeholder="509XXXXXXXX" maxlength="15">
+    <button id="generate">GENERATE</button>
+  </div>
+
+  <div id="code" class="code"></div>
+  <div id="msg" class="msg"></div>
+  <div class="small">Enter the full international number without +, spaces or dashes. Never share your pairing code.</div>
+  <a class="back" href="index.html">← Back to SBG-MD</a>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const API = window.SBG_PAIR_API || "";
+
+function setMsg(text){ $("msg").textContent = text; }
+
+$("generate").addEventListener("click", async () => {
+  const phone = $("phone").value.replace(/\D/g, "");
+  $("code").style.display = "none";
+  if(!phone || phone.length < 8 || phone.length > 15){
+    setMsg("Enter a valid international WhatsApp number.");
+    return;
+  }
+
+  $("generate").disabled = true;
+  setMsg("Connecting to the session service…");
+
+  try {
+    const res = await fetch((API || "") + "/api/pair", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({phone})
+    });
+    const data = await res.json().catch(() => ({}));
+    if(!res.ok) throw new Error(data.error || "The server could not generate a pairing code.");
+
+    $("code").textContent = data.code || "NO CODE";
+    $("code").style.display = "block";
+    setMsg("Open WhatsApp → Linked devices → Link a device → Link with phone number instead, then enter this code.");
+  } catch(err) {
+    setMsg(err.message || "Connection error.");
+  } finally {
+    $("generate").disabled = false;
+  }
+});
+</script>
+</body>
+</html>
